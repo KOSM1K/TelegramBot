@@ -6,12 +6,11 @@ import random
 
 import datetime
 
-import multiprocessing
-
+import json
 from telebot.types import BotCommand
 
 from hidden import token
-import json
+from executor import executor
 
 TOKEN = token
 bot = telebot.TeleBot(TOKEN)
@@ -53,38 +52,8 @@ def handle_left_member(message: telebot.types.Message):
 
 @bot.message_handler(commands=['exec'])
 def bot_exec(message: telebot.types.Message):
-    run_result = []
-    def executor(code: str):
-        nonlocal run_result
-        __bot_out_buff__ = []
-        banned_samples = {
-            "import",
-            "open",
-            "exec",
-            "eval",
-            "builtins",
-            "os",
-            "sys",
-            "getattr",
-            "system",
-            "globals",
-            "telebot",
-            "ТРАХНУТ"
-        }
-
-        refined_code = code.replace("print", "__bot_out_buff__.append")
-        # refined_code = code
-        print(refined_code)
-        if any(i in refined_code for i in banned_samples):
-            run_result = ["бан тебе нахуй педрила, нельзя такой код писать", __bot_out_buff__]
-            return
-        try:
-            exec(refined_code)
-            run_result = ["", __bot_out_buff__]
-        except Exception as e:
-            run_result = [str(e), __bot_out_buff__]
-
-    chat_id = message.chat.id
+    save_users(message)
+    run_result = [None, None]
 
     code = None
     for i in message.entities:
@@ -102,7 +71,7 @@ def bot_exec(message: telebot.types.Message):
         parse_mode="Markdown")
         return
     try:
-        task_thread = threading.Thread(target=executor, args=(code,))
+        task_thread = threading.Thread(target=executor, args=(code,run_result,))
         task_thread.start()
         task_thread.join(5)
 
