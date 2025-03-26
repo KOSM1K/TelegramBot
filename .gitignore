@@ -2,3 +2,4 @@ hidden.py
 
 .idea/
 *.json
+__pycache__/
