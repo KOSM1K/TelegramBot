@@ -4,6 +4,8 @@ import time
 import telebot
 import random
 
+import datetime
+
 import multiprocessing
 
 from telebot.types import BotCommand
@@ -49,10 +51,10 @@ def handle_left_member(message: telebot.types.Message):
     RemoveUser(message.chat.id, message.from_user.id)
 
 
-@bot.message_handler(commands=['eval'])
-def bot_eval(message: telebot.types.Message):
+@bot.message_handler(commands=['exec'])
+def bot_exec(message: telebot.types.Message):
     run_result = []
-    def evaluator(code: str):
+    def executor(code: str):
         nonlocal run_result
         __bot_out_buff__ = []
         banned_samples = {
@@ -60,12 +62,14 @@ def bot_eval(message: telebot.types.Message):
             "open",
             "exec",
             "eval",
-            "bultins",
+            "builtins",
             "os",
             "sys",
             "getattr",
             "system",
-            "globals"
+            "globals",
+            "telebot",
+            "ТРАХНУТ"
         }
 
         refined_code = code.replace("print", "__bot_out_buff__.append")
@@ -81,26 +85,34 @@ def bot_eval(message: telebot.types.Message):
             run_result = [str(e), __bot_out_buff__]
 
     chat_id = message.chat.id
-    my_message = bot.reply_to(message,
-                              "Все print будут заменены на сохранение строки в буффер вывода. Ввод пока невозможен, используй переменные")
 
     code = None
     for i in message.entities:
         if i.type == 'pre' and i.language == 'python':
             code = message.text[i.offset: i.offset + i.length]
             break
+    if code == None:
+        bot.reply_to(message,
+"Запущу твой код на языке python.\n\
+Для отправки после комманды напиши Markdown с кодом и меткой языка python.\n\n \
+```python\nprint('как-то вот так')```\n\n\
+Все print будут заменены на сохранение строки в буффер вывода\n\n\
+```\n(print(...) -> __bot_out_buff__.append(...))```\n\n\
+Ввод пока невозможен, используй переменные",
+        parse_mode="Markdown")
+        return
     try:
-        task_thread = threading.Thread(target=evaluator, args=(code,))
+        task_thread = threading.Thread(target=executor, args=(code,))
         task_thread.start()
         task_thread.join(5)
 
-        run_result[1] = list(map(str, run_result[1]))
-        run_result[1] = '\n'.join(run_result[1])
         if task_thread.is_alive():
             bot.reply_to(message,
                          f"Время исполнения истекло. Вот что успела вывести твоя программа:\n\n```out\n{run_result[1]}```",
                          parse_mode="Markdown")
-        elif run_result[0] == "":
+        run_result[1] = list(map(str, run_result[1]))
+        run_result[1] = '\n'.join(run_result[1])        
+        if run_result[0] == "":
             bot.reply_to(message,
                          f"Исполнение программы завершилось успешно. Вот что успела вывести твоя программа:\n\n```out\n{run_result[1]}```",
                          parse_mode="Markdown")
@@ -121,7 +133,7 @@ def send_member_list(message: telebot.types.Message):
 
     if chat_id in chat_members:
         str_of_users_with_indexes = ""
-        index = 0
+        index = 1
         for cur_user_id in chat_members[chat_id]:
             if is_loud:
                 str_of_users_with_indexes += "{:>8}".format(
@@ -169,6 +181,12 @@ def bot_random(message: telebot.types.Message):
         bot.send_message(chat_id, f"Случайный выбор: {response_msg}")
 
 
+@bot.message_handler(commands=['uptime'])
+def bot_uptime(message: telebot.types.Message):
+    save_users(message)
+    chat_id = message.chat.id
+    bot.send_message(chat_id, f"Я запущен уже {datetime.timedelta(seconds= time.time() - start_time)}")
+
 @bot.message_handler(commands=['shuffle'])
 def bot_shuffle(message: telebot.types.Message):
     save_users(message)
@@ -184,7 +202,7 @@ def bot_shuffle(message: telebot.types.Message):
             for i in range(int(len(chosen_order) ** 0.5 + 1)):
                 random.shuffle(chosen_order)
             message = "Случайный порядок:\n"
-            index = 0
+            index = 1
             for i in chosen_order:
                 if is_loud:
                     message += "{:>8}".format(
@@ -226,6 +244,8 @@ if __name__ == "__main__":
         BotCommand("shuffle",
                    "Get random order from all registered members, or random order of mentioned after command"),
         BotCommand("get_member_list", "Get list of all registered members"),
+        BotCommand("exec", "Run your python code!"),
+        BotCommand("uptime", "For how long I have been standing?"),
     ]
     try:
         bot.set_my_commands(commands)
@@ -248,6 +268,7 @@ if __name__ == "__main__":
 
     # bot.infinity_polling()
     try:
+        start_time = time.time()
         bot.polling()
     except KeyboardInterrupt:
         print("manually stopped")
