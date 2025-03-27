@@ -1,3 +1,5 @@
+import traceback
+
 def executor(code: str, run_result: list):
         __bot_out_buff__ = []
         banned_samples = {
@@ -26,6 +28,6 @@ def executor(code: str, run_result: list):
             run_result[0] = ""
             run_result[1] = __bot_out_buff__
         except Exception as e:
-            run_result[0] = str(e)
+            run_result[0] = '\n'.join(list(map(str,list(traceback.extract_tb(e.__traceback__))))) + '\n' + '-|-'*10 + '\n' + str(e)
             run_result[1] = __bot_out_buff__
         # return run_result

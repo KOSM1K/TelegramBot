@@ -1,6 +1,8 @@
 import threading
 import time
 
+import traceback
+
 import telebot
 import random
 
@@ -91,7 +93,7 @@ def bot_exec(message: telebot.types.Message):
                          parse_mode="Markdown")
         return
     except Exception as e:
-        bot.reply_to(message, f"Блять я маслину поймал:\n\n{e}")
+        bot.reply_to(message, f"Блять я маслину поймал:\n\n```{'\n'.join(list(map(str,list(traceback.extract_tb(e.__traceback__))))) + '\n' + '-|-'*10 + '\n' + str(e)}```", parse_mode="Markdown")
 
 @bot.message_handler(commands=['get_member_list'])
 def send_member_list(message: telebot.types.Message):
