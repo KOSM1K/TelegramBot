@@ -1,4 +1,5 @@
-import threading
+# import threading
+import multiprocessing
 import time
 
 import traceback
@@ -55,7 +56,8 @@ def handle_left_member(message: telebot.types.Message):
 @bot.message_handler(commands=['exec'])
 def bot_exec(message: telebot.types.Message):
     save_users(message)
-    run_result = [None, None]
+    return_manager = multiprocessing.Manager()
+    run_result = return_manager.list(["", return_manager.list()])
 
     code = None
     for i in message.entities:
@@ -73,23 +75,26 @@ def bot_exec(message: telebot.types.Message):
         parse_mode="Markdown")
         return
     try:
-        task_thread = threading.Thread(target=executor, args=(code,run_result,))
+        task_thread = multiprocessing.Process(target=executor, args=(code,run_result,))
         task_thread.start()
         task_thread.join(5)
 
-        if task_thread.is_alive():
-            bot.reply_to(message,
-                         f"Время исполнения истекло. Вот что успела вывести твоя программа:\n\n```out\n{run_result[1]}```",
-                         parse_mode="Markdown")
         run_result[1] = list(map(str, run_result[1]))
-        run_result[1] = '\n'.join(run_result[1])        
+        run_result[1] = '\n'.join(run_result[1])
+        if task_thread.is_alive():
+            task_thread.terminate()
+            bot.reply_to(message,
+                            f"Время исполнения истекло. Вот что успела вывести твоя программа:\n\n```out\n{run_result[1]}```",
+                            parse_mode="Markdown")
+            return
+                
         if run_result[0] == "":
             bot.reply_to(message,
                          f"Исполнение программы завершилось успешно. Вот что успела вывести твоя программа:\n\n```out\n{run_result[1]}```",
                          parse_mode="Markdown")
         else:
             bot.reply_to(message,
-                         f"Исполнение программы завершилось с ошибкой. Вот сообщение об ошибке:\n\n ```out\n{run_result[0]}``` \n\n Вот что успела вывести твоя программа:\n\n {run_result[1]}",
+                         f"Исполнение программы завершилось с ошибкой. Вот сообщение об ошибке:\n\n ```out\n{run_result[0]}``` \n\n Вот что успела вывести твоя программа:\n\n ```out\n{run_result[1]}```",
                          parse_mode="Markdown")
         return
     except Exception as e:
@@ -240,7 +245,7 @@ if __name__ == "__main__":
     # bot.infinity_polling()
     try:
         start_time = time.time()
-        bot.polling()
+        bot.infinity_polling()
     except KeyboardInterrupt:
         print("manually stopped")
     except Exception as e:
