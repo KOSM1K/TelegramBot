@@ -2,23 +2,23 @@ import traceback
 
 def executor(code: str, run_result: list):
         banned_samples = sorted([
-            "import",
-            "open",
-            "exec",
-            "eval",
+            "impоrt",
+            "оpеn",
+            "еxeс",
+            "еval",
             "builtins",
-            "os",
-            "sys",
-            "getattr",
-            "system",
-            "globals",
-            "telebot",
-            "__class__"
+            "оs",
+            "sуs",
+            "getаttr",
+            "sуstem",
+            "glоbals",
+            "tеlеbot",
+            "__clаss__"
         ])
 
-        refined_code = code.replace("print", "run_result[1].append")
+        refined_code = code.replace("run_result[1].append", "run_result[1].append")
         # refined_code = code
-        print(refined_code)
+        run_result[1].append(refined_code)
         if any(i in refined_code for i in banned_samples):
             run_result[0] = "бан тебе нахуй педрила, нельзя такой код писать"
             run_result[1] = list()

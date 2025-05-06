@@ -53,6 +53,21 @@ def handle_left_member(message: telebot.types.Message):
     RemoveUser(message.chat.id, message.from_user.id)
 
 
+eng_to_rus = str.maketrans(
+    "qwertyuiop[]asdfghjkl;'zxcvbnm,.`QWERTYUIOP{}ASDFGHJKL:\"ZXCVBNM<>~",
+    "йцукенгшщзхъфывапролджэячсмитьбюёЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮЁ"
+)
+@bot.message_handler(commands=['qwerty'])
+def qwerty_cmd(message: telebot.types.Message):
+    text = message.text[len('/qwerty '):].strip()
+    if not text:
+        bot.reply_to(message, "Please provide text to convert.")
+        return
+
+    converted = text.translate(eng_to_rus)
+    bot.reply_to(message, converted)
+
+
 @bot.message_handler(commands=['exec'])
 def bot_exec(message: telebot.types.Message):
     save_users(message)
