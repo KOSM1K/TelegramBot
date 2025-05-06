@@ -12,7 +12,8 @@ def executor(code: str, run_result: list):
             "getattr",
             "system",
             "globals",
-            "telebot"
+            "telebot",
+            "__class__"
         ])
 
         refined_code = code.replace("print", "run_result[1].append")
