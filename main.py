@@ -57,12 +57,14 @@ eng_to_rus = str.maketrans(
     "qwertyuiop[]asdfghjkl;'zxcvbnm,.`QWERTYUIOP{}ASDFGHJKL:\"ZXCVBNM<>~",
     "йцукенгшщзхъфывапролджэячсмитьбюёЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮЁ"
 )
-@bot.message_handler(commands=['qwerty'])
+@bot.message_handler(commands=['q'])
 def qwerty_cmd(message: telebot.types.Message):
-    text = message.text[len('/qwerty '):].strip()
-    if not text:
-        bot.reply_to(message, "Please provide text to convert.")
-        return
+    if message.reply_to_message:
+        original_msg = message.reply_to_message
+        # bot.reply_to(message, f"Ты ответил на сообщение: '{original_msg.text}'")
+        text = original_msg.text
+    else:
+        bot.reply_to(message, "Это не ответ на сообщение.")
 
     converted = text.translate(eng_to_rus)
     bot.reply_to(message, converted)
@@ -71,6 +73,9 @@ def qwerty_cmd(message: telebot.types.Message):
 @bot.message_handler(commands=['exec'])
 def bot_exec(message: telebot.types.Message):
     save_users(message)
+
+    bot.reply_to(message, "а не пойти ли тебе нахуй, а? все, лавочка закрыта, пока не зашьют дыры - хуй тебе, понял!?")
+    return
     return_manager = multiprocessing.Manager()
     run_result = return_manager.list(["", return_manager.list()])
 
@@ -236,6 +241,7 @@ if __name__ == "__main__":
                    "Get random order from all registered members, or random order of mentioned after command"),
         BotCommand("get_member_list", "Get list of all registered members"),
         BotCommand("exec", "Run your python code!"),
+        BotCommand("q", "qwerty -> йцукен"),
         BotCommand("uptime", "For how long I have been standing?"),
     ]
     try:
