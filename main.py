@@ -18,7 +18,7 @@ from executor import executor
 TOKEN = token
 bot = telebot.TeleBot(TOKEN)
 
-NN_SWITCH = True
+NN_SWITCH = False
 
 if NN_SWITCH:
     import torch
@@ -96,7 +96,7 @@ def RemoveUser(chat_id, user_id):
 
 @bot.message_handler(commands=['chat_f'])
 def chatter_f_func(message: telebot.types.Message):
-    if NN_SWITCH:
+    if not NN_SWITCH:
         bot.reply_to(message, "NN capabilities are off now")
         return
 
@@ -115,7 +115,7 @@ def chatter_f_func(message: telebot.types.Message):
 
 @bot.message_handler(commands=['chat'])
 def chatter_func(message: telebot.types.Message):
-    if NN_SWITCH:
+    if not NN_SWITCH:
         bot.reply_to(message, "NN capabilities are off now")
         return
 
@@ -138,7 +138,7 @@ def chatter_func(message: telebot.types.Message):
 
 @bot.message_handler(commands=['math'])
 def chatter_func(message: telebot.types.Message):
-    if NN_SWITCH:
+    if not NN_SWITCH:
         bot.reply_to(message, "NN capabilities are off now")
         return
 
