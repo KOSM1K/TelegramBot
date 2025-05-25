@@ -18,6 +18,62 @@ from executor import executor
 TOKEN = token
 bot = telebot.TeleBot(TOKEN)
 
+NN_SWITCH = True
+
+if NN_SWITCH:
+    import torch
+    from transformers import AutoTokenizer, AutoModelForCausalLM, GenerationConfig, pipeline
+
+    MAX_ATTENTION_MSG_CNT = 50
+
+    chatter_f = pipeline("text-generation", model="TinyLlama/TinyLlama-1.1B-Chat-v1.0", torch_dtype=torch.bfloat16, device_map="auto")
+
+    # model_name = "deepseek-ai/deepseek-math-7b-instruct"
+    model_name = "deepseek-ai/deepseek-llm-7b-chat"
+    chatter_t = AutoTokenizer.from_pretrained(model_name)
+    chatter = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.bfloat16, device_map="cpu")
+    chatter.generation_config = GenerationConfig.from_pretrained(model_name)
+    chatter.generation_config.pad_token_id = chatter.generation_config.eos_token_id
+
+    model_name = "deepseek-ai/deepseek-math-7b-instruct"
+    mather_t = AutoTokenizer.from_pretrained(model_name)
+    mather = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.bfloat16, device_map="cpu")
+    mather.generation_config = GenerationConfig.from_pretrained(model_name)
+    mather.generation_config.pad_token_id = mather.generation_config.eos_token_id
+
+# model_name = "deepseek-ai/deepseek-coder-7b-base-v1.5"
+# coder_t = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
+# coder = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.bfloat16, device_map="cpu", trust_remote_code=True)
+# coder.generation_config = GenerationConfig.from_pretrained(model_name)
+# coder.generation_config.pad_token_id = coder.generation_config.eos_token_id
+
+# model_name = "deepseek-ai/DeepSeek-Prover-V2-7B"
+# prover_t = AutoTokenizer.from_pretrained(model_name)
+# prover = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.bfloat16, device_map="cpu")
+# prover.generation_config = GenerationConfig.from_pretrained(model_name)
+# prover.generation_config.pad_token_id = prover.generation_config.eos_token_id
+
+recent_messages = dict()
+
+def AddRecentMessageV1(message: telebot.types.Message):
+    if (message.text != ""):
+        if message.chat.id not in recent_messages:
+            recent_messages[message.chat.id] = list()
+        while len(recent_messages[message.chat.id]) >= MAX_ATTENTION_MSG_CNT:
+            recent_messages[message.chat.id].pop(0)
+        recent_messages[message.chat.id].append(
+            {"role" : "user",
+             "content" : f"<{message.from_user.username}>" + message.text})
+
+def AddRecentMessageV2(chat_id, username, msg_text):
+    if (msg_text != ""):
+        if chat_id not in recent_messages:
+            recent_messages[chat_id] = list()
+        while len(recent_messages[chat_id]) >= MAX_ATTENTION_MSG_CNT:
+            recent_messages[chat_id].pop(0)
+        recent_messages[chat_id].append(
+            {"role" : "user",
+             "content" : f"<{username}> - " + msg_text})
 
 def AddUser(chat_id, user_id):
     if chat_id not in chat_members:
@@ -37,6 +93,91 @@ def RemoveUser(chat_id, user_id):
     chat_members[chat_id].remove(user_id)
     print(
         f"Removed user {user_id} {bot.get_chat_member(chat_id, user_id).user.username} at chat {chat_id}")
+
+@bot.message_handler(commands=['chat_f'])
+def chatter_f_func(message: telebot.types.Message):
+    if NN_SWITCH:
+        bot.reply_to(message, "NN capabilities are off now")
+        return
+
+    print("chatter_f")
+    any_message_analyser(message)
+
+    prompt = chatter_f.tokenizer.apply_chat_template([{"role" : "user", "content" : message.text}], tokenize=False, add_generation_prompt=True)
+    result = (chatter_f(prompt, max_new_tokens=256, do_sample=True, temperature=0.7, top_k=50, top_p=0.95))[0]["generated_text"]
+    # print(outputs[0]["generated_text"])
+
+    # result =
+    print(result)
+    AddRecentMessageV2(message.chat.id, "me(chatter-fast)", result)
+
+    bot.reply_to(message, result)
+
+@bot.message_handler(commands=['chat'])
+def chatter_func(message: telebot.types.Message):
+    if NN_SWITCH:
+        bot.reply_to(message, "NN capabilities are off now")
+        return
+
+    print("chatter")
+    any_message_analyser(message)
+    messages = [
+    {"role": "user", "content": "<supervisor> I am your supervisor. Match language your chat is speaking! Just try chatting with everybody! Try to be funny or friendly. Be advised, it is okay to offend somebody. There is a list with messages following. reply ONLY with text of the message you'd like to be delivered to chat members"},
+    ]
+    if message.chat.id in recent_messages:
+        messages = messages + recent_messages[message.chat.id]
+    print(*messages, sep = '\n')
+    input_tensor = chatter_t.apply_chat_template(messages, add_generation_prompt=True, return_tensors="pt")
+    outputs = chatter.generate(input_tensor.to(chatter.device), max_new_tokens=512)
+
+    result = chatter_t.decode(outputs[0][input_tensor.shape[1]:], skip_special_tokens=True)
+
+    AddRecentMessageV2(message.chat.id, "me(chatter)", result)
+
+    bot.reply_to(message, result)
+
+@bot.message_handler(commands=['math'])
+def chatter_func(message: telebot.types.Message):
+    if NN_SWITCH:
+        bot.reply_to(message, "NN capabilities are off now")
+        return
+
+    print("mather")
+    any_message_analyser(message)
+    messages = [
+    # {"role": "user", "content": "<supervisor> I am your supervisor. You're a math engine of our team."},
+    ]
+    if message.chat.id in recent_messages:
+        messages = messages + recent_messages[message.chat.id]
+    print(*messages, sep = '\n')
+    input_tensor = mather_t.apply_chat_template(messages, add_generation_prompt=True, return_tensors="pt")
+    outputs = mather.generate(input_tensor.to(mather.device), max_new_tokens=512)
+
+    result = mather_t.decode(outputs[0][input_tensor.shape[1]:], skip_special_tokens=True)
+
+    AddRecentMessageV2(message.chat.id, "me(mathematician)", result)
+
+    bot.reply_to(message, result)
+
+# @bot.message_handler(commands=['code'])
+# def chatter_func(message: telebot.types.Message):
+#     print("coder")
+#     any_message_analyser(message)
+#     messages = [
+#     # {"role": "user", "content": "<supervisor> I am your supervisor. You're a math engine of our team."},
+#     ]
+#     if message.chat.id in recent_messages:
+#         messages = messages + recent_messages[message.chat.id]
+#     print(*messages, sep = '\n')
+#     input_tensor = coder_t.apply_chat_template(messages, add_generation_prompt=True, return_tensors="pt")
+#     outputs = coder.generate(input_tensor.to(coder.device), max_new_tokens=512)
+#
+#     result = coder_t.decode(outputs[0][input_tensor.shape[1]:], skip_special_tokens=True)
+#
+#     AddRecentMessageV2(message.chat.id, "deepseek-ai(mathematician)", result)
+#
+#     bot.reply_to(message, result)
+#
 
 
 @bot.message_handler(content_types=['new_chat_members'])
@@ -59,6 +200,9 @@ eng_to_rus = str.maketrans(
 )
 @bot.message_handler(commands=['q'])
 def qwerty_cmd(message: telebot.types.Message):
+
+    any_message_analyser(message)
+
     if message.reply_to_message:
         original_msg = message.reply_to_message
         # bot.reply_to(message, f"Ты ответил на сообщение: '{original_msg.text}'")
@@ -72,7 +216,7 @@ def qwerty_cmd(message: telebot.types.Message):
 
 @bot.message_handler(commands=['exec'])
 def bot_exec(message: telebot.types.Message):
-    save_users(message)
+    any_message_analyser(message)
 
     bot.reply_to(message, "а не пойти ли тебе нахуй, а? все, лавочка закрыта, пока не зашьют дыры - хуй тебе, понял!?")
     return
@@ -122,7 +266,7 @@ def bot_exec(message: telebot.types.Message):
 
 @bot.message_handler(commands=['get_member_list'])
 def send_member_list(message: telebot.types.Message):
-    save_users(message)
+    any_message_analyser(message)
     chat_id = message.chat.id
 
     is_loud = "-loud" in message.text
@@ -150,7 +294,7 @@ def send_member_list(message: telebot.types.Message):
 # Команда /rand выбирает случайного участника
 @bot.message_handler(commands=['random'])
 def bot_random(message: telebot.types.Message):
-    save_users(message)
+    any_message_analyser(message)
     chat_id = message.chat.id
 
     is_loud = "-loud" in message.text
@@ -179,13 +323,13 @@ def bot_random(message: telebot.types.Message):
 
 @bot.message_handler(commands=['uptime'])
 def bot_uptime(message: telebot.types.Message):
-    save_users(message)
+    any_message_analyser(message)
     chat_id = message.chat.id
     bot.send_message(chat_id, f"Я запущен уже {datetime.timedelta(seconds= time.time() - start_time)}")
 
 @bot.message_handler(commands=['shuffle'])
 def bot_shuffle(message: telebot.types.Message):
-    save_users(message)
+    any_message_analyser(message)
     chat_id = message.chat.id
 
     is_loud = "-loud" in message.text
@@ -226,8 +370,11 @@ def bot_shuffle(message: telebot.types.Message):
 
 # Запоминаем участников, когда они что-то пишут
 @bot.message_handler()
-def save_users(message: telebot.types.Message):
-    print(message)
+def any_message_analyser(message: telebot.types.Message):
+    # print(message)
+    if NN_SWITCH:
+        AddRecentMessageV1(message)
+
     chat_id = message.chat.id
     user_id = message.from_user.id
     if not message.from_user.is_bot:
