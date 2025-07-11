@@ -55,6 +55,19 @@ if NN_SWITCH:
 
 recent_messages = dict()
 
+go_fuck_yourself = [
+    "иди нахуй",
+    "НАХУЙ ИДИ! И-Д-И Н-А-Х-У-Й!!!",
+    "ооо, блять, пидор проснулся",
+    "да как же ты меня заебал",
+    "сосал? да не отвечай, сразу вижу, что да",
+    "да поебать мне!",
+    "твое место у параши.",
+    "хорошо тебе с хуем в жопе живется?",
+    "да когда ж ты ебало то завалишь...",
+    "ЕБАЛО СВОЕ ОФФНИ, ЧУРКА!"
+]
+
 def AddRecentMessageV1(message: telebot.types.Message):
     if (message.text != ""):
         if message.chat.id not in recent_messages:
@@ -198,7 +211,7 @@ eng_to_rus = str.maketrans(
     "qwertyuiop[]asdfghjkl;'zxcvbnm,.`QWERTYUIOP{}ASDFGHJKL:\"ZXCVBNM<>~",
     "йцукенгшщзхъфывапролджэячсмитьбюёЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮЁ"
 )
-@bot.message_handler(commands=['q'])
+@bot.message_handler(commands=['qw'])
 def qwerty_cmd(message: telebot.types.Message):
 
     any_message_analyser(message)
@@ -368,6 +381,14 @@ def bot_shuffle(message: telebot.types.Message):
         bot.send_message(chat_id, f"Случайный порядок: {response_msg}")
 
 
+@bot.message_handler(commands=['fuck_you'])
+def fuck_you(message: telebot.types.Message):
+    if message.reply_to_message:
+        original_msg = message.reply_to_message
+        bot.reply_to(original_msg, random.choice(go_fuck_yourself))
+    else:
+        bot.send_message(message.chat.id, random.choice(go_fuck_yourself))
+
 # Запоминаем участников, когда они что-то пишут
 @bot.message_handler()
 def any_message_analyser(message: telebot.types.Message):
@@ -388,7 +409,7 @@ if __name__ == "__main__":
                    "Get random order from all registered members, or random order of mentioned after command"),
         BotCommand("get_member_list", "Get list of all registered members"),
         BotCommand("exec", "Run your python code!"),
-        BotCommand("q", "qwerty -> йцукен"),
+        BotCommand("qw", "qwerty -> йцукен"),
         BotCommand("uptime", "For how long I have been standing?"),
     ]
     try:
