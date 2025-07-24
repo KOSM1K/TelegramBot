@@ -388,6 +388,8 @@ def fuck_you(message: telebot.types.Message):
         bot.reply_to(original_msg, random.choice(go_fuck_yourself))
     else:
         bot.send_message(message.chat.id, random.choice(go_fuck_yourself))
+    if not message.forward_from:
+        bot.delete_message(message.chat.id, message.id)
 
 # Запоминаем участников, когда они что-то пишут
 @bot.message_handler()
