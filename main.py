@@ -8,6 +8,7 @@ from handlers.shuffle_members import *
 from handlers.list_members import *
 from handlers.uptime import *
 from handlers.exec import *
+from handlers.probability import *
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
@@ -21,5 +22,6 @@ if __name__ == "__main__":
     register_list_members_command(chat_context)
     register_uptime_command(chat_context)
     register_exec_command(chat_context)
+    register_probability_command(chat_context)
 
     chat_context.launch()
