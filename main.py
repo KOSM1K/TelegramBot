@@ -13,6 +13,13 @@ from handlers.choose_from import *
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
+if (BOT_TOKEN == None):
+    try:
+        from hidden import token
+        BOT_TOKEN = token
+    except:
+        raise "Couldn't find bot token. I give up."
+
 chat_context = ChatContext(BOT_TOKEN)
 
 if __name__ == "__main__":

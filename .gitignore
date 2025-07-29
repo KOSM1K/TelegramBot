@@ -1,5 +1,11 @@
+# token
 hidden.py
 
-.idea/
+# user data
 *.json
+*.db
+
+# no need in these (and token can appear there)
+.idea/
 __pycache__/
+.vscode
