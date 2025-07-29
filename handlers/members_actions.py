@@ -7,7 +7,7 @@ def register_new_member_handler(context: ChatContext):
     @context.bot.message_handler(content_types=['new_chat_members'])
     def handle_new_member(message: telebot.types.Message):
         for new_member in message.new_chat_members:
-            if not new_member.is_bot():
+            if not new_member.is_bot:
                 context.database.add_member(new_member.id, message.chat.id)
 
 
