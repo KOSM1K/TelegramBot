@@ -16,13 +16,13 @@ def register_probability_command(context: ChatContext):
         args = message.text.partition(' ')
 
         if len(args) != 3:
-            context.bot.reply_to(message, "Ожидаемый формат: /prop <cобытие>")
+            context.bot.reply_to(message, "Ожидаемый формат: /prob <cобытие>")
             return
 
         event_name = args[2]
 
         if len(event_name) <= 1:
-            context.bot.reply_to(message, "Ожидаемый формат: /prop <cобытие>")
+            context.bot.reply_to(message, "Ожидаемый формат: /prob <cобытие>")
             return
 
         probability = random.randint(0, 100)
