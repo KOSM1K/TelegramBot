@@ -5,6 +5,9 @@ hidden.py
 *.json
 *.db
 
+# launch scripts
+linux_service.sh
+
 # no need in these (and token can appear there)
 .idea/
 __pycache__/
