@@ -1,8 +1,14 @@
+# token
 hidden.py
 
-*.db
-.idea/
+# user data
 *.json
+*.db
+
+# launch scripts
+linux_service.sh
+
+# no need in these (and token can appear there)
+.idea/
 __pycache__/
-.venv
-.idea
+.vscode

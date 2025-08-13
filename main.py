@@ -5,6 +5,13 @@ from handlers import *
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
+if (BOT_TOKEN == None):
+    try:
+        from hidden import token
+        BOT_TOKEN = token
+    except:
+        raise "Couldn't find bot token. I give up."
+
 chat_context = ChatContext(BOT_TOKEN)
 
 if __name__ == "__main__":
@@ -19,4 +26,4 @@ if __name__ == "__main__":
     register_choose_from_command(chat_context)
     register_gambling_commands(chat_context)
 
-    chat_context.launch()
+	chat_context.launch()
