@@ -26,4 +26,4 @@ if __name__ == "__main__":
     register_choose_from_command(chat_context)
     register_gambling_commands(chat_context)
 
-	chat_context.launch()
+    chat_context.launch()
