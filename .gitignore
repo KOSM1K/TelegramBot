@@ -1,5 +1,8 @@
 hidden.py
 
+*.db
 .idea/
 *.json
 __pycache__/
+.venv
+.idea

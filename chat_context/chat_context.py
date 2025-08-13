@@ -8,7 +8,8 @@ from database.bot_db import BotDatabase
 
 class ChatContext:
     def __init__(self, token: str):
-        self.bot = telebot.TeleBot(token)
+        # To handle multiple spins we need threads
+        self.bot = telebot.TeleBot(token, threaded=True)
         self.commands = []  # Contains list of helpers for commands
         self.start_time = None
         self.database = BotDatabase()
