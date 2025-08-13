@@ -28,7 +28,7 @@ def register_gambling_send_command(context: ChatContext):
 
         mention = message.reply_to_message.from_user
 
-        if (not (parts[1].isdigit() or (parts[1][:-1].isdigit() and parts[1][:-1] == "%") )) or mention is None:
+        if (not (parts[1].isdigit() or (parts[1][:-1].isdigit() and parts[1][-1] == "%"))) or (mention is None):
             context.bot.reply_to(message, "Неверный формат команды! /send [сколько]")
             return
 
