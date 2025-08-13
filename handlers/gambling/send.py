@@ -27,11 +27,16 @@ def register_gambling_send_command(context: ChatContext):
             return
 
         mention = message.reply_to_message.from_user
-        amount = int(parts[1])
 
-        if not parts[1].isdigit() or mention is None:
+        if (not (parts[1].isdigit() or (parts[1][:-1].isdigit() and parts[1][:-1] == "%") )) or mention is None:
             context.bot.reply_to(message, "Неверный формат команды! /send [сколько]")
             return
+
+        amount = 0
+        if (parts[1][-1] != '%'):
+            amount = int(parts[1])
+        else:
+            amount = (int(parts[1][:-1]) / 100) * context.database.get_money(user_id, chat_id)
 
         if amount <= 0:
             context.bot.reply_to(message, "Отправить можно только > 0 сатоши")

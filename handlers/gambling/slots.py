@@ -68,7 +68,7 @@ def register_gambling_slots_command(context: ChatContext):
         emojis = [s for s in symbols]
 
         last_frame = None
-        for _ in range(10):
+        for _ in range(3):
             frame = f"[{random.choice(emojis)}][{random.choice(emojis)}][{random.choice(emojis)}]"
 
             if last_frame != frame:
@@ -79,7 +79,7 @@ def register_gambling_slots_command(context: ChatContext):
                 )
                 last_frame = frame
 
-            time.sleep(0.3)
+            time.sleep(1)
 
         probs = [g["prob"] for g in games_outcome]
         chosen = random.choices(games_outcome, weights=probs, k=1)[0]
