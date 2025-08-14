@@ -59,7 +59,11 @@ def register_gambling_slots_command(context: ChatContext):
         chat_id = message.chat.id
         user_id = message.from_user.id
 
-        context.database.take_money(user_id, chat_id, bet)
+        res = context.database.take_money(user_id, chat_id, bet)
+
+        if not res:
+            context.bot.reply_to(message, "Нет у тебя столько денег, дебил")
+            return
 
         user_name = message.from_user.username
 
