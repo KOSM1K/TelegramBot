@@ -33,10 +33,10 @@ def register_gambling_send_command(context: ChatContext):
             return
 
         amount = 0
-        if (parts[1][-1] != '%'):
+        if parts[1][-1] != '%':
             amount = int(parts[1])
         else:
-            amount = (int(parts[1][:-1]) / 100) * context.database.get_money(user_id, chat_id)
+            amount = int((int(parts[1][:-1]) / 100) * context.database.get_money(user_id, chat_id))
 
         if amount <= 0:
             context.bot.reply_to(message, "Отправить можно только > 0 сатоши")
