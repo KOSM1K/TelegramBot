@@ -17,6 +17,7 @@ chat_context = ChatContext(BOT_TOKEN)
 if __name__ == "__main__":
     register_rage_command(chat_context)
     register_qwerty_command(chat_context)
+    register_register_command(chat_context)
     register_random_member_command(chat_context)
     register_shuffle_members_command(chat_context)
     register_list_members_command(chat_context)

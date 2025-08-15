@@ -8,6 +8,7 @@ from handlers.exec import *
 from handlers.probability import *
 from handlers.choose_from import *
 from handlers.gambling import *
+from handlers.register import *
 
 
 __all__ = [
@@ -20,5 +21,6 @@ __all__ = [
     "register_exec_command",
     "register_probability_command",
     "register_choose_from_command",
-    "register_gambling_commands"
+    "register_gambling_commands",
+    "register_register_command"
 ]
