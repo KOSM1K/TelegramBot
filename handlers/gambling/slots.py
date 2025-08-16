@@ -43,7 +43,9 @@ def register_gambling_slots_command(context: ChatContext):
         user_id = message.from_user.id
         user_name = message.from_user.username
 
-        context.database.take_money(user_id, chat_id, bet)
+        if not context.database.take_money(user_id, chat_id, bet):
+            context.bot.reply_to(message, "У тебя нет столько денег!")
+            return
 
         spinning_gif_path = Path("assets/slot_spin_forever.gif")
         sent_msg = context.bot.send_animation(
