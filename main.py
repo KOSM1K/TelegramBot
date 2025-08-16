@@ -1,7 +1,10 @@
 import os
 
+
 from chat_context import *
 from handlers import *
+from admin.handlers import *
+from admin.handlers.update import register_update_command
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
@@ -26,5 +29,6 @@ if __name__ == "__main__":
     register_probability_command(chat_context)
     register_choose_from_command(chat_context)
     register_gambling_commands(chat_context)
+    register_update_command(chat_context)
 
     chat_context.launch()
