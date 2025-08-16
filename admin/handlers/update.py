@@ -19,7 +19,8 @@ def register_update_command(context: ChatContext):
         subprocess.Popen(
         ["./linux_service_update.sh"],
         stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL
+        stderr=subprocess.DEVNULL,
+        start_new_session=True
     )
 
         
