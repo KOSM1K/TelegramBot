@@ -28,6 +28,14 @@ def register_gambling_send_command(context: ChatContext):
 
         mention = message.reply_to_message.from_user
 
+        if mention.id not in context.database.all_members_of_chat(chat_id):
+            context.bot.reply_to(message, "Этот участник не зарегистрирован, ему нельзя отправить сатоши")
+            return
+        
+        if user_id not in context.database.all_members_of_chat(chat_id):
+            context.bot.reply_to(message, "Ты не зарегистрирован, у тебя нет сатоши-счета")
+            return
+
         if (not (parts[1].isdigit() or (parts[1][:-1].isdigit() and parts[1][-1] == "%"))) or (mention is None):
             context.bot.reply_to(message, "Неверный формат команды! /send [сколько]")
             return

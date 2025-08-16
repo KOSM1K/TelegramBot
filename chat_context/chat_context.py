@@ -21,10 +21,12 @@ class ChatContext:
     # Note: this command will trigger database, so it can be slow
     # Probably, we should add /register command or manually add all members
     def any_message_handler(self, message: telebot.types.Message):
-        chat_id = message.chat.id
-        user_id = message.from_user.id
-        if not message.from_user.is_bot:
-            self.database.add_member(user_id, chat_id)
+        pass
+        # TODO : LOGSSSS!!!!!
+        # chat_id = message.chat.id
+        # user_id = message.from_user.id
+        # if not message.from_user.is_bot:
+        #     self.database.add_member(user_id, chat_id)
 
     def launch(self):
         try:

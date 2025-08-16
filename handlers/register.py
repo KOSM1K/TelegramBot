@@ -18,17 +18,21 @@ def register_register_command(context: ChatContext):
     def bot_uptime(message: telebot.types.Message):
         context.any_message_handler(message)
 
-        if not message.reply_to_message:
-            context.bot.reply_to(message, "Отправьте в ответ на сообщения участника для добавления")
-            return
+        if message.reply_to_message:
+            mention = message.reply_to_message.from_user
+        else:
+            mention = message.from_user
 
         chat_id = message.chat.id
-        mention = message.reply_to_message.from_user
 
-        if mention.id not in context.database.all_members_of_chat(chat_id):
-            context.database.add_member(mention.id, chat_id)
+        if not mention.is_bot:
+            if mention.id not in context.database.all_members_of_chat(chat_id):
+                context.database.add_member(mention.id, chat_id)
 
-            context.bot.reply_to(message, f"Участник {mention.username} добавлен")
-            return
-
-        context.bot.reply_to(message, f"Участник {mention.username} уже добавлен")
+                context.bot.reply_to(message, f"Участник {mention.username} добавлен")
+                return
+            else:
+                context.bot.reply_to(message, f"Участник {mention.username} уже добавлен")
+        else:
+            context.bot.reply_to(message, f"Участник {mention.username} - бот, его нельзя зарегистрировать")
+        
