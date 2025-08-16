@@ -17,7 +17,7 @@ def register_update_command(context: ChatContext):
         context.any_message_handler(message)
 
         subprocess.Popen(
-        ["systemd-run --unit=CosmoBotRestart ./linux_service_update.sh"],
+        ["./linux_service_update.sh"],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
         start_new_session=True
