@@ -7,6 +7,7 @@ hidden.py
 
 # launch scripts
 linux_service.sh
+linux_service_update.sh
 
 # no need in these (and token can appear there)
 .idea/
