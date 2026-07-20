@@ -1,9 +1,9 @@
 import asyncio
 import logging
-from appcontext import AppContext
+from app.appcontext import AppContext
 
 # Import your top-level routers
-from handlers import router as handlers_router
+from app.handlers import router as handlers_router
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
