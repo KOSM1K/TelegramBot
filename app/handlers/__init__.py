@@ -1,6 +1,6 @@
 from aiogram import Router
 
-from . import ping
+from app.handlers import ping
 
 router = Router()
 
