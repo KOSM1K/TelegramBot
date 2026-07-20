@@ -12,7 +12,7 @@ async def main():
     # 1. Create the context (this automatically creates bot, dp, and db)
     context = AppContext()
 
-    # 2. Wire up the routers to the dispatcher
+    # 2. Wire up routers to the dispatcher
     context.dp.include_router(handlers_router)
 
     # 3. Start the bot
