@@ -1,14 +1,9 @@
-# token
-hidden.py
-
-# user data
-*.json
-*.db
-
-# launch scripts
-linux_service.sh
-
-# no need in these (and token can appear there)
-.idea/
+.env
 __pycache__/
-.vscode
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.idea/
