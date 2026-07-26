@@ -9,19 +9,27 @@ from app.handlers import router as handlers_router
 logging.basicConfig(level=logging.INFO)
 
 async def main():
-    # 1. Create the context (this automatically creates bot, dp, and db)
+    # 1. Create the context
     context = AppContext()
 
-    # 2. Wire up routers to the dispatcher
-    context.dp.include_router(handlers_router)
+    try:
+        # 2. Wire up routers to the dispatcher
+        context.dp.include_router(handlers_router)
 
-    # 3. Start the bot
-    logging.info("Starting bot...")
-    await context.bot.delete_webhook(drop_pending_updates=True)
-    await context.dp.start_polling(context.bot)
+        # 3. Start the bot
+        logging.info("Starting bot...")
+        await context.bot.delete_webhook(drop_pending_updates=True)
+        await context.dp.start_polling(context.bot)
+
+    except (KeyboardInterrupt, SystemExit):
+        logging.info("Bot stopped by user.")
+    except Exception as e:
+        logging.error(f"Bot crashed with error: {e}")
+    finally:
+        # 4. ALWAYS clean up database connections, no matter how it exits
+        logging.info("Cleaning up database connections...")
+        await context.shutdown()
+        logging.info("Shutdown complete.")
 
 if __name__ == "__main__":
-    try:
-        asyncio.run(main())
-    except (KeyboardInterrupt, SystemExit):
-        logging.info("Bot stopped.")
+    asyncio.run(main())
