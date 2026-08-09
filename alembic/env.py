@@ -14,6 +14,8 @@ load_dotenv()
 # If you don't import the files, Alembic won't know they exist.
 from app.database.engine import Base
 from app.database.models.user import User
+from app.database.models.admin_token import AdminToken
+from app.database.models.admin_session import AdminSession
 
 config = context.config
 
